@@ -175,3 +175,70 @@ new Vue({
 
 ```
 
+# 路由守卫
+
+1、全局路由守卫，代码如下
+
+```
+import Vue from 'vue';
+import VueRouter from 'vue-router';
+import routes from './routes';
+//声明使用路由
+Vue.use(VueRouter);
+
+const router=new VueRouter({
+  mode: 'history',
+  routes
+})
+router.beforeEach((to,from,next)=>{
+  console.log(to)
+  console.log("---------------------")
+  console.log(from)
+  next()
+})
+export default router
+
+全局路由守卫，必须要执行next函数才会放行
+to：即将要进入的路由
+from:要离开的路由;
+下面的是重定向，由”/“路由跳转至”/home“,分别打印的两个对象
+to对象:
+{name: undefined, meta: {…}, path: "/home", hash: "", query: {…}, …}
+fullPath: "/home"
+hash: ""
+matched: [{…}]
+meta: {isShow: true}
+name: undefined
+params: {}
+path: "/home"
+query: {}
+from对象：
+{name: null, meta: {…}, path: "/", hash: "", query: {…}, …}
+fullPath: "/"
+hash: ""
+matched: []
+meta: {}
+name: null
+params: {}
+path: "/"
+query: {}
+```
+
+2、组件路由守卫
+
+代码如下:
+
+```
+    beforeRouteEnter (to, from, next) {
+      // 指定回调函数在组件对象创建之后执行, 且会将组件对象传入
+      next((component) => { 
+         // 如果已登陆了, 自动跳转到profile
+        if (component.$store.state.user.token) {
+          next('/profile')
+        } else { // 否则放行
+          next()
+        }
+      })
+      这个方法是写在methods里面的，这里面注意有时候可能要用到组件对象，由于是进入之前，因此组件对象还没有生成，这里不能使用this，this指向的不是组件对象，这时候，可以指定next函数，里面参数是组件对象，能够指定什么时候条调用
+```
+
