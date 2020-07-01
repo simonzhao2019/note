@@ -27,6 +27,13 @@ const path4=path.resolve('home','./foo/bar', '../baz')
  //  输出： '/home/foo/baz'   没有根路径一home作为根路径
 ```
 
+### 2、path.extname()
 
+返回path路径文件扩展名，如果path以 ‘.' 为结尾，将返回 ‘.'，如果无扩展名 又 不以'.'结尾，将返回空值。
+
+```
+> path1 = path.extname("hello.txt");
+'.txt'
+```
 
 
