@@ -130,10 +130,26 @@ let flg:boolean=true //定义布尔值类型
 let u: undefined = undefined; //定义undefined类型
 let n: null = null;//定义null类型
 
-注意：ts还有一个void概念,在 TypeScript 中，可以用 void 表示没有任何返回值的函数：
+注意：（1）ts还有一个void概念,在 TypeScript 中，可以用 void 表示没有任何返回值的函数：
 function alertName(): void {
     alert('My name is Tom');
 }
 另外，声明一个 void 类型的变量没有什么用，因为你只能将它赋值为 undefined 和 null
+（2）关于null和undefined 
+与 void 的区别是，undefined 和 null 是所有类型的子类型。比如
+// 这样不会报错
+let num: number = undefined;
+```
+
+#### 任意值
+
+任意值(any)用来表示允许赋值为任意类型
+
+```
+eg:
+let person:any=123
+ person='明天'  //编译的时候并不会报错
+ 
+ 注意在ts当中，如果定义一个变量未声明其类型，则就会被认为是任意值类型。
 ```
 
