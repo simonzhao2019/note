@@ -141,6 +141,132 @@ function alertName(): void {
 let num: number = undefined;
 ```
 
+### （二）引用数据类型
+
+#### 接口
+
+1、什么是接口
+
+在面向对象语言中，接口（Interfaces）是一个很重要的概念，它是对行为的抽象，而具体如何行动需要由类（classes）去实现（implement）。
+
+```
+interface Person {
+    name: string;
+    age: number;
+}
+
+let tom: Person = {
+    name: 'Tom',
+    age: 25
+};
+我们可以理解为tom就是对Person的抽象，我们在定义了Person接口之后，又声明了tom属于Person接口，那么其属性必须和Person一样，有两个，为name和age,而且还必须和他们在接口当中声明的类型一样。
+
+```
+
+2、接口的可选属性
+
+诚如上面所述，当定义了一个接口之后。一旦某个变量归属于接口，则其定义的属性必须和接口一样，如果我们需要进行动态的改变，可以使用可选属性
+
+```
+interface Person {
+    name: string;
+    age？: number;
+}
+
+let tom: Person = {
+    name: 'Tom',
+   
+};
+如上面所示，这时候，age就变为可选的了。不过此时注意，还是不能增加，如果我们给他多了一个属性还是会报错
+let tom: Person = {
+    name: 'Tom',
+   	gender:'male'             //会报错
+};  
+```
+
+3、任意属性
+
+有时候我们希望一个接口允许有任意的属性，可以使用如下方式：
+
+```
+interface Person {
+  name: string;
+  age?: number;
+  [propName: string]: any;
+}
+let xiaoming:Person={
+  name:'xiaoming',
+  gender:18
+
+}
+这里面，gender就是在接口里面没有定义的类型。
+注意：如果我们定义了任意属性，那么确定属性和可选属性的类型都必须是它的类型的子集：
+interface Person {
+    name: string;
+    age?: number;
+    [propName: string]: string;
+}
+
+let tom: Person = {
+    name: 'Tom',
+    age: 25,
+    gender: 'male'
+};
+这里会报错，因为number并不是sring的子集。
+
+```
+
+一个接口中只能定义一个任意属性。如果接口中有多个类型的属性，则可以在任意属性中使用联合类型：
+
+```
+interface Person {
+    name: string;
+    age?: number;
+    [propName: string]: string | number;
+}
+
+let tom: Person = {
+    name: 'Tom',
+    age: 25,
+    gender: 'male'
+};
+```
+
+4、只读属性
+
+```
+interface Person {
+    readonly id: number;
+    name: string;
+    age?: number;
+    [propName: string]: any;
+}
+
+let tom: Person = {
+    id: 89757,
+    name: 'Tom',
+    gender: 'male'
+};
+
+tom.id = 9527;  //这里不允许进行赋值，因为声明了id为只读属性
+```
+
+#### 数组
+
+1、数组的定义
+
+（1）「类型 + 方括号」表示法
+
+```
+let fibonacci: number[] = [1, 1, 2, 3, 5];
+
+这里面number表述我们数组的元素必须是number类型，[]表示我们定义的是数组类型，
+let fibonacci: any[] = [1, 1, 2, 3, '可以'];
+如果有多种类型，里面可以使用any
+```
+
+
+
 #### 任意值
 
 任意值(any)用来表示允许赋值为任意类型
@@ -151,5 +277,11 @@ let person:any=123
  person='明天'  //编译的时候并不会报错
  
  注意在ts当中，如果定义一个变量未声明其类型，则就会被认为是任意值类型。
+ps:
+在任意值上访问任何属性都是允许的：
+let anyThing: any = 'hello';
+console.log(anyThing.myName);
+console.log(anyThing.myName.firstName);
+这时候仍然会编译成功
 ```
 
