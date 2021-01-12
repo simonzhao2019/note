@@ -263,6 +263,194 @@ let fibonacci: number[] = [1, 1, 2, 3, 5];
 这里面number表述我们数组的元素必须是number类型，[]表示我们定义的是数组类型，
 let fibonacci: any[] = [1, 1, 2, 3, '可以'];
 如果有多种类型，里面可以使用any
+let fibonacci: number[] = [1, 1, 2, 3, 5];
+fibonacci.push('8');
+
+// 报错信息：Argument of type '"8"' is not assignable to parameter of type 'number'.
+```
+
+（2）用接口表示数组
+
+```
+interface NumberArray {
+    [index: number]: number;
+}
+let fibonacci: NumberArray = [1, 1, 2, 3, 5];
+
+
+
+interface Person {
+    name: string;
+    age?: number;
+    [propName: string]: string;
+}
+
+
+可以参考接口的任意属性进行理解
+NumberArray 表示：只要索引的类型是数字时，那么值的类型必须是数字。
+
+虽然接口也可以用来描述数组，但是我们一般不会这么做，因为这种方式比前两种方式复杂多了。
+
+
+```
+
+通常来说，我们会用接口的方式来定义类数组
+
+```js
+function (){
+let args:number[]=arguments
+}
+
+
+function () {
+  let args: any[] = arguments
+}   //这种方式定义还是会报下面的错误
+
+/*  
+注：arguments 是一个对应于传递给函数的参数的类数组对象。可以参考mdn定义
+编译报错：Type 'IArguments' is missing the following properties from type 'number[]': pop, push, concat, join, and 15 more.
+这里报错，因为arguments并不是一个数组*/
+
+
+function sum() {
+    let args: {
+        [index: number]: number;
+        length: number;
+        callee: Function;
+    } = arguments;
+}
+
+
+这里我们就定义了一个伪数组
+
+
+function sum() {
+    let args: IArguments = arguments;
+}
+
+其中IArguments是ts当中定义好了的伪数组类型
+```
+
+（3）数组泛型
+
+```js
+let fibonacci: Array<number> = [1, 1, 2, 3, 5];
+```
+
+#### 函数
+
+1、函数声明定义函数
+
+```js
+function sum(x: number, y: number): number {
+    return x + y;
+}
+/*  
+这里我们定义了参数的类型和返回值的类型，
+注意：输入多余的（或者少于要求的）参数，是不被允许的：*/
+```
+
+2、函数表达式定义函数
+
+```js
+let plus: (a: number, b: number) => number = function (a: number, b: number) {
+  return a+b
+}
+/*注意不要混淆了 TypeScript 中的 => 和 ES6 中的 =>。
+在 TypeScript 的类型定义中，=> 用来表示函数的定义，左边是输入类型，需要用括号括起来，右边是输出类型。*/
+```
+
+3、用接口定义函数的形状
+
+```js
+interface SearchFunc {
+    (source: string, subString: string): boolean;
+}
+
+let mySearch: SearchFunc;
+mySearch = function(source: string, subString: string) {
+    return source.search(subString) !== -1;
+}
+/*采用函数表达式|接口定义函数的方式时，对等号左侧进行类型限制，可以保证以后对函数名赋值时保证参数个数、参数类型、返回值类型不变。*/
+```
+
+4、关于函数的tips
+
+(1)可选参数
+
+```js
+function buildName(firstName: string, lastName?: string) {
+    if (lastName) {
+        return firstName + ' ' + lastName;
+    } else {
+        return firstName;
+    }
+}
+let tomcat = buildName('Tom', 'Cat');
+let tom = buildName('Tom');
+
+可选参数的表现形式类似于接口当中的定义用？标识。其中lastName为可选参数，这里要注意可选参数必须写在最后
+```
+
+（2）参数默认值
+
+```js
+function buildName(firstName: string, lastName: string = 'Cat') {
+    return firstName + ' ' + lastName;
+}
+let tomcat = buildName('Tom', 'Cat');
+let tom = buildName('Tom');
+
+/*注意，这里lastName就有了参数默认值，不过需要注意，ts会把有默认值的参数自动认为为可选参数，还有就是这时候可选参数就不一定非要在后面了*/
+```
+
+（3）剩余参数
+
+```
+function push(array: any[], ...items: any[]) {
+    items.forEach(function(item) {
+        array.push(item);
+    });
+}
+
+let a = [];
+push(a, 1, 2, 3)
+
+剩余参数其实就是个数组，我们可以用定义数组的方式去定义它
+
+```
+
+（4）重载
+
+```js
+function reverse(x: number | string): number | string {
+    if (typeof x === 'number') {
+        return Number(x.toString().split('').reverse().join(''));
+    } else if (typeof x === 'string') {
+        return x.split('').reverse().join('');
+    }
+}这时候的提示为function reverse(x: number | string): number | string
+
+
+
+function reverse(x: number): number;
+function reverse(x: string): string;
+function reverse(x: number | string): number | string {
+  if (typeof x === 'number') {
+    return Number(x.toString().split('').reverse().join(''));
+  } else if (typeof x === 'string') {
+    return x.split('').reverse().join('');
+  }
+}
+console.log(reverse('hellp'))   //这时候的提示为function reverse(x: string): string (+1 overload)提示了我们当输入为字符串的时候，输出必须为字符串
+
+
+
+
+
+上例中，我们重复定义了多次函数 reverse，前几次都是函数定义，最后一次是函数实现。在编辑器的代码提示中，可以正确的看到前两个提示。
+
+PS:在我理解重载就是提示更加友好
 ```
 
 
@@ -282,6 +470,6 @@ ps:
 let anyThing: any = 'hello';
 console.log(anyThing.myName);
 console.log(anyThing.myName.firstName);
-这时候仍然会编译成功
+这时候仍然会编译成功    
 ```
 
