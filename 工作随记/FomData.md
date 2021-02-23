@@ -185,4 +185,48 @@ formDataGet File {uid: 1611904922450, name: "IP导入模板 (1).xlsx", lastModi
 (2) ["file", File]*/ //数组的形式输出
 ```
 
-## 三、表单的内置验证
+## 三、表单的enctype 属性
+
+表单能够用四种编码，向服务器发送数据。编码格式由表单的`enctype`属性决定。
+
+假定表单有两个字段，分别是`foo`和`baz`，其中`foo`字段的值等于`bar`，`baz`字段的值是一个分为两行的字符串。
+
+### 1、get
+
+如果表单使用`GET`方法发送数据，`enctype`属性无效，数据将以 URL 的查询字符串发出。
+
+```js
+?foo=bar&baz=The%20first%20line.%0AThe%20second%20line
+```
+
+### 2、application/x-www-form-urlencoded
+
+如果表单用`POST`方法发送数据，并省略`enctype`属性，那么数据以`application/x-www-form-urlencoded`格式发送（因为这是默认值）
+
+### 3、text/plain
+
+如果表单使用`POST`方法发送数据，`enctype`属性为`text/plain`，那么数据将以纯文本格式发送。
+
+### 4、multipart/form-data
+
+如果表单使用`POST`方法，`enctype`属性为`multipart/form-data`，那么数据将以混合的格式发送。这种格式也是文件上传的格式。
+
+## 四、文件上传
+
+用户上传文件，也是通过表单。具体来说，就是通过文件输入框选择本地文件，提交表单的时候，浏览器就会把这个文件发送到服务器。
+
+此外，还需要将表单`<form>`元素的`method`属性设为`POST`，`enctype`属性设为`multipart/form-data`。其中，`enctype`属性决定了 HTTP 头信息的`Content-Type`字段的值，默认情况下这个字段的值是`application/x-www-form-urlencoded`，但是文件上传的时候要改成`multipart/form-data`。
+
+```js
+<form method="post" enctype="multipart/form-data">
+  <div>
+    <label for="file">选择一个文件</label>
+    <input type="file" id="file" name="myFile" multiple>
+  </div>
+  <div>
+    <input type="submit" id="submit" name="submit_button" value="上传" />
+  </div>
+</form>
+```
+
+上面的 HTML 代码中，file 控件的`multiple`属性，指定可以一次选择多个文件；如果没有这个属性，则一次只能选择一个文件。
