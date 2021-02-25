@@ -230,3 +230,5 @@ formDataGet File {uid: 1611904922450, name: "IP导入模板 (1).xlsx", lastModi
 ```
 
 上面的 HTML 代码中，file 控件的`multiple`属性，指定可以一次选择多个文件；如果没有这个属性，则一次只能选择一个文件。
+
+## 五、补充字符的编码相关知识
