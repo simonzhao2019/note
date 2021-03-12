@@ -360,7 +360,7 @@ let plus: (a: number, b: number) => number = function (a: number, b: number) {
 在 TypeScript 的类型定义中，=> 用来表示函数的定义，左边是输入类型，需要用括号括起来，右边是输出类型。*/
 ```
 
-3、用接口定义函数的形状
+3、用接口定义函数的形状(接口函数)
 
 ```js
 interface SearchFunc {
@@ -459,7 +459,7 @@ PS:在我理解重载就是提示更加友好
 
 任意值(any)用来表示允许赋值为任意类型
 
-```
+```js
 eg:
 let person:any=123
  person='明天'  //编译的时候并不会报错
@@ -471,5 +471,98 @@ let anyThing: any = 'hello';
 console.log(anyThing.myName);
 console.log(anyThing.myName.firstName);
 这时候仍然会编译成功    
+```
+
+未声明类型的变量，会被识别为任意值类型
+
+```js
+eg)
+let person
+  person='xiaoming'
+  person=7
+  
+//eg)能够正常编译  
+```
+
+### (三)类型之间的联系
+
+#### 1、类型推论
+
+```js
+//eg)如果没有进行类型定义，ts会按照初次给变量赋值的类型进行推论，下面的代码编译会报错
+
+let name1 = 'xiaoming'
+name1=7
+```
+
+#### 2、联合类型
+
+eg1)：联合类型定义
+
+联合类型表示的是取值可以为多种类型中的一种，比如我们下面的定义
+
+```js
+let age:String|Number=18
+
+age='19'
+
+//我们在上面中就规定了age可以为String或者是Number
+```
+
+eg2)访问联合类型的属性或方法
+
+当 TypeScript 不确定一个联合类型的变量到底是哪个类型的时候，我们**只能访问此联合类型的所有类型里共有的属性或方法**：例如下面的例子：
+
+```js
+function some(something:String|Number):String {
+  return something.length
+}
+//error TS2339: Property 'length' does not exist on type 'String | Number'.
+  Property 'length' does not exist on type 'Number'.
+```
+
+#### 3、类型断言
+
+eg1)类型断言（Type Assertion）可以用来手动指定一个值的类型。
+
+eg2)类型断言的用途
+
+1、将一个联合类型断言为其中一个类型
+
+```js
+interface Sum{
+  name:String,
+  run():void
+}
+interface Plus {
+  name: String,
+  swim(): void
+}
+
+function getName(animal: Sum | Plus) {
+  return animal.name;
+}
+
+//参考上面的联合类型，并不会报错，但是如果我们按照下面的方式进行访问就会报错interface Cat {
+
+
+function isFish(animal: Plus | Sum) {
+    if (typeof animal.swim === 'function') {
+        return true;
+    }
+    return false;
+}
+
+//这里swim并不是共有的，所以会报错
+    
+    
+interface Foo {
+  bar: number;
+  bas: string;
+}
+
+const foo = <Foo>{} ;
+foo.bar = 123;
+foo.bas = 'hello';//  并不会报错,因为我们在这里断言了foo属于Foo类型
 ```
 
