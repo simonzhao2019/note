@@ -261,17 +261,44 @@ this.$refs.usernameInput
       }
     },
     在组件的props里面进行了接收
+    
 ```
 
-###### 3、消息订阅与发布(pubsub-js库)
+###### 3、监听子组件事件
+
+```js
+//父组件
+<div id="blog-posts-events-demo">
+  <div :style="{ fontSize: postFontSize + 'em' }">
+    <blog-post
+	@enlarge-text="postFontSize += 0.1"
+      v-for="post in posts"
+      :key="post.id"
+      :title="post.title"
+    ></blog-post>
+  </div>
+</div>
+
+//子组件
+<button @click="$emit('enlargeText')">
+  Enlarge text
+</button>
+
+
+//这里面父组件监听了enlargeText事件，而子组件通过触发enlargeText来通知父组件，可以进行某些操作
+```
+
+
+
+###### 4、消息订阅与发布(pubsub-js库)
 
 这种方式多用在react里面，react里面有详细的分析，这里不再论述
 
-###### 4、利用vuex
+###### 5、利用vuex
 
 对状态进行集中处理的插件库，可以查看vuex的专门笔记
 
-###### 5、事件总线（EventBus）
+###### 6、事件总线（EventBus）
 
 EventBus和pubsub非常的类似，其中emit提供数据，on监听数据的变化，里面第二个参数就是回调函数，在这里我们可以可以拿到数据，
 
