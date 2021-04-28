@@ -566,3 +566,34 @@ foo.bar = 123;
 foo.bas = 'hello';//  并不会报错,因为我们在这里断言了foo属于Foo类型
 ```
 
+## 三、进阶
+
+### 1、泛型
+
+```js
+   createArray<T>(length: number, value: T): Array<T> {
+    let result: T[] = [];   //这里决定了数组里面的类型也是为T
+    for (let i = 0; i < length; i++) {
+        result[i] = value;
+    }
+    return result;
+}
+
+//在上图中，我们在函数名的后面定义了<T>。这里我们就可以把它理解为泛型，因为我们并不知道输出的类型，其主要的的需求是，要求输入的类型和输出的类型一致 
+```
+
+#### 泛型约束
+
+```js
+interface Lengthwise {
+    length: number;
+}
+//定义了接口lengthwise
+function loggingIdentity<T extends Lengthwise>(arg: T): T {
+    console.log(arg.length);
+    return arg;
+}
+
+<T extends Lengthwise>  //这句话的意思是我们定义的类型必须符合接口Lengthwise的要求
+```
+
