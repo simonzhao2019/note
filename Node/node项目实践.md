@@ -41,3 +41,83 @@
   },
 ```
 
+### 2、app.js
+
+这里主要讲一下app.js里面比较重要的部分
+
+```js
+
+
+// view engine setup，这里可以参考express的官方文档，简单解释来说，app.set('view')指定了网页视图渲染的模板,可以参考下面给出的解释
+
+
+app.set('views', path.join(__dirname, 'views'));
+
+/*A directory or an array of directories for the application's views. If an array, the views are looked up in the order they occur in the array.*/
+
+app.engine('html', require("ejs").renderFile);
+
+/*By default, Express will require() the engine based on the file extension. For example, if you try to render a “foo.pug” file, Express invokes the following internally, and caches the require() on subsequent calls to increase performance.*/
+
+app.set('view engine', 'html');
+/*The default engine extension to use when omitted.
+NOTE: Sub-apps will inherit the value of this setting.*/
+
+
+
+// uncomment after placing your favicon in /public
+//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(logger('dev'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(cookieParser());
+app.use(session({
+    resave: true, // don't save session if unmodified
+    saveUninitialized: false, // don't create session until something stored
+    secret: 'love'
+}));
+app.use(express.static(path.join(__dirname, 'public')));
+
+// // 登录校验
+app.use(function (req, res, next) {
+    var path = req.path;
+    if (path != "/login" && path != "/getMessageVerify" && !req.session.user&&path != "/getMsgCode") {
+        return res.redirect("login");
+    }
+    next();
+});
+
+
+app.use('/', index);
+app.use('/users', users);
+//对于app.use的解释
+Mounts the specified middleware function or functions at the specified path: the middleware function is executed when the base of the requested path matches path.
+
+
+
+// catch 404 and forward to error handler
+app.use(function (req, res, next) {
+    var err = new Error('Not Found');
+    err.status = 404;
+    next(err);
+});
+//注意，这里的404是我们自己扔出来的，具体可以看express官网的解释。在Express 中，404 回应并不是错误的结果，因此错误处理常式中介软体不会撷取它们。会有此行为是因为404 回应仅表示没有额外的工作来执行；换句话说，Express 已执行所有的中介软体函数和路由，并发现它们都没有回应。您唯一要做的是在堆叠的最底端（其他所有函数下方），新增一个中介软体函数，以处理404 回应。简单的说，前面的路由什么的我们都没有命中，都没有return，一路下来我们没有任何处理结果，这时候，我们就可以扔出404,让下一步的函数处理。
+
+// error handler
+app.use(function (err, req, res, next) {
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+    // render the error page
+    res.status(err.status || 500);
+    res.render('error');
+});
+process.on('uncaughtException', function(err) {
+    console.error('Error caught in uncaughtException event:', err);
+});
+
+module.exports = app;
+
+```
+
