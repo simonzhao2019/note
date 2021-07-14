@@ -59,7 +59,9 @@ HTTP/1.1协议中预留给能够将连接改为隧道方式的代理服务器。
 
 大多数浏览器不支持针对于预检请求的重定向。如果一个预检请求发生了重定向，浏览器将报告错误：
 
-2、http请求中的关键几个字段理解
+2、关于跨域当中http请求的几个关键头部
+
+**A)请求部分**
 
 （1）withCredentials：是否携带身份凭证
 
@@ -67,11 +69,101 @@ HTTP/1.1协议中预留给能够将连接改为隧道方式的代理服务器。
 
 简单来说，我们只有将withCredentials` 标志设置为 `true，才能服务器发送 Cookies（第三方）。还有就是如果服务器端的响应中未携带 `Access-Control-Allow-Credentials: true` ，浏览器将不会把响应内容返回给请求的发送者。
 
-（2） Access-Control-Allow-Origin 
+（2）Access-Control-Request-Headers
 
-这里我们顺便说另外一个字段 Access-Control-Allow-Origin 的值为。响应头指定了该响应的资源是否被允许与给定的[origin](https://developer.mozilla.org/zh-CN/docs/Glossary/Origin)共享，“`*`”表示所有域都具有访问资源的权限。这里我们需要注意的是如果withCredentials设置为true，则Access-Control-Allow-Origin不能设置为通配符*，必须指定域名
+请求头 **`Access-Control-Request-Headers `**出现于 [preflight request](https://developer.mozilla.org/zh-CN/docs/Glossary/Preflight_request) （预检请求）中，用于通知服务器在真正的请求中会采用哪些请求头。（不用自己定义，预检请求自己发送）
 
+**B)响应部分**
 
+（1） Access-Control-Allow-Origin 
 
+ Access-Control-Allow-Origin 响应头指定了该响应的资源是否被允许与给定的[origin](https://developer.mozilla.org/zh-CN/docs/Glossary/Origin)共享，“`*`”表示所有域都具有访问资源的权限。这里我们需要注意的是如果withCredentials设置为true，则Access-Control-Allow-Origin不能设置为通配符*，必须指定域名。简单来说，对于不需要携带身份凭证的请求，我们可以把这个字段设置为通配符*。但是如果需要身份凭证，则必须指定域名
 
+（2）Access-Control-Allow-Credentials
+
+Access-Control-Allow-Credentials 头指定了当浏览器的credentials设置为true时是否允许浏览器读取response的内容。当用在对preflight预检测请求的响应中时，它指定了实际的请求是否可以使用credentials。请注意：简单 GET 请求不会被预检；如果对此类请求的响应中不包含该字段，这个响应将被忽略掉，并且浏览器也不会将相应内容返回给网页。
+
+（3）Access-Control-Expose-Headers
+
+在跨源访问时，XMLHttpRequest对象的getResponseHeader()方法只能拿到一些最基本的响应头，Cache-Control、Content-Language、Content-Type、Expires、Last-Modified、Pragma，如果要访问其他头，则需要服务器设置本响应头。具体在项目hls.js当中，针对视频的跨域，后端返回的x-cookies。后端，如果不在响应头中设置Access-Control-Expose-Headers：x-cookies，则前端在获取响应头的时候是拿不到x-cookies
+
+（4）Access-Control-Allow-Headers
+
+Access-Control-Allow-Headers 首部字段用于预检请求的响应。其指明了实际请求中允许携带的首部字段。
+
+（5）Access-Control-Allow-Methods
+
+Access-Control-Allow-Methods 首部字段用于预检请求的响应。其指明了实际请求所允许使用的 HTTP 方法。
+
+3、第三方cookie问题
+
+（2）服务的响应头中需要携带Access-Control-Allow-Credentials并且为true。
+
+（2）响应头中的Access-Control-Allow-Origin一定不能为*，必须是指定的域名
+
+（3）浏览器发起ajax需要指定withCredentials 为true
+
+（4）注意sameSite问题（还需要注意chrome浏览器与fireFox浏览器的不同）
+
+### **4、常见请求头**
+
+（1）content-Type
+
+content-Type首部字段用来说明了实体主体的MIME类型，MIME类型我们可以把它理解为作为货物运载的基本媒体类型。客户端用MIME类型来解释和处理其内容。MIME类型由一个主体媒体类型（如application、text等）后面跟一个斜杠以及一个子类型组成，子类型用来进一步描述媒体类型。比如text/html。
+
+content-Type首部还支持可选的参数来进一步说明媒体的类型，如charset=UTF-8就用来表明把实体中的比特转换为文本文件中字符的方法
+
+长让人疑惑的问题
+
+**a、application类型**
+
+经常看到的application/x-www-form-urlencoded
+
+翻阅mdn，上面的解释。application以某种方式执行或解释的数据或需要特定应用程序或应用程序类别才能使用的二进制数据称为application。
+
+```
+The "application" top-level type is to be used for discrete data that
+   do not fit under any of the other type names, and particularly for
+   data to be processed by some type of application program. 
+   
+   							rfc6838对于application的官方定义
+```
+
+2、关于msip-admin里面请求头设置的疑惑
+
+```js
+Content-Type: application/x-www-form-urlencoded; charset=UTF-8
+Cookie: connect.sid=s%3Ax4oGbzvQXZEM4HGEpCoUFyH4S7fci9XY.ria1%2BPmJwGU1UgxzA7vm6fhrlmn5hc%2F5SfkhhxSyLyk
+DNT: 1
+Host: 36.155.98.99
+Origin: http://36.155.98.99
+Pragma: no-cache
+Referer: http://36.155.98.99/admin/
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36
+X-Requested-With: XMLHttpRequest
+
+这里是请求主体
+
+mscId: 
+```
+
+如果content-type设置为application/x-www-form-urlencoded。则发送如下、这里面键值分别为ids和goods
+
+```
+ids=%20%5B%2260ee828f4ece8139f47c77b8%22%5D&key=%22goods%22
+```
+
+如果content-Type设置为 multipart/form-data; boundary=--------------------------553911955301029091719338这请求主体通过postman可以看到为下面的形式
+
+```
+----------------------------553911955301029091719338
+Content-Disposition: form-data; name="ids"
+
+["60ee828f4ece8139f47c77b8"]
+----------------------------553911955301029091719338
+Content-Disposition: form-data; name="key"
+
+good
+----------------------------553911955301029091719338--
+```
 
