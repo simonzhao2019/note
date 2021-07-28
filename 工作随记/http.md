@@ -107,7 +107,7 @@ Access-Control-Allow-Methods 首部字段用于预检请求的响应。其指明
 
 ### **4、常见请求头**
 
-（1）content-Type
+#### （1）content-Type
 
 content-Type首部字段用来说明了实体主体的MIME类型，MIME类型我们可以把它理解为作为货物运载的基本媒体类型。客户端用MIME类型来解释和处理其内容。MIME类型由一个主体媒体类型（如application、text等）后面跟一个斜杠以及一个子类型组成，子类型用来进一步描述媒体类型。比如text/html。
 
@@ -167,3 +167,64 @@ good
 ----------------------------553911955301029091719338--
 ```
 
+#### （2）Content-Length 
+
+Content-Length 是一个实体消息首部，用来指明发送给接收方的消息主体的大小（以字节为单位）
+
+```js
+Accept-Ranges: bytes
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: http://localhost:3001
+Access-Control-Expose-Headers: Date, Etag, Server, Connection, Accept-Ranges, Content-Range, Content-Encoding, Content-Length, Content-Type, Content-Disposition, Last-Modified, Content-Language, Cache-Control, Retry-After, X-Amz-Bucket-Region, Expires, X-Amz*, X-Amz*, *
+Content-Length: 903539986  //单位为字节bytes
+Content-Security-Policy: block-all-mixed-content
+Content-Type: video/mp4
+Date: Tue, 27 Jul 2021 07:26:07 GMT
+ETag: "cbca8efdf8cbb4b524cf22c8110293be"
+Last-Modified: Sat, 24 Jul 2021 17:05:39 GMT
+Server: MinIO
+Vary: Origin
+X-Amz-Request-Id: 1695951741FE0A17
+X-Xss-Protection: 1; mode=bloc
+```
+
+这里的大小是包含了所有内容编码的实体大小，如果对请求进行了gzip压缩的话，他指的进行了压缩后的大小，而不是原始的大小。还有就是除非使用了分块编码，否则Content-Length 首部是必须的。
+
+（3）range与Content-Range
+
+ Range 是一个请求首部，告知服务器返回文件的哪一部分。在一个  Range 首部中，可以一次性请求多个部分，服务器会以 multipart 文件的形式将其返回。如果服务器返回的是范围响应，需要使用 206 Partial Content 状态码。假如所请求的范围不合法，那么服务器会返回  416 Range Not Satisfiable 状态码，表示客户端错误。服务器允许忽略  Range  首部，从而返回整个文件，状态码用 200 。
+
+```js
+Range: <unit>=<range-start>-
+Range: <unit>=<range-start>-<range-end>
+Range: <unit>=<range-start>-<range-end>, <range-start>-<range-end>
+Range: <unit>=<range-start>-<range-end>, <range-start>-<range-end>, <range-start>-<range-end>
+```
+
+在HTTP协议中，响应首部 Content-Range 显示的是一个数据片段在整个文件中的位置。
+
+```js
+Content-Range: <unit> <range-start>-<range-end>/<size>
+Content-Range: <unit> <range-start>-<range-end>/*
+Content-Range: <unit> */<size>
+```
+
+注意利用range和Content-Range我们可以实现大文件的分片下载
+
+#### （3）Transfer-Encoding
+
+`Transfer-Encoding` 响应头用于告诉客户端服务器发送内容的编码格式。
+
+其可选值有：
+
+- `chunked`：数据分块发送。此时应缺省 `Content-Length` 响应头。
+- `compress`：使用 [Lempel-Ziv-Welch](http://en.wikipedia.org/wiki/LZW) 算法进行传输的格式，目前没有浏览器在支持。
+- `deflate`：使用 [deflate](http://en.wikipedia.org/wiki/DEFLATE) 压缩算法 [zlib](http://en.wikipedia.org/wiki/Zlib) 结构。
+- `gzip`：使用 [Lempel-Ziv coding](http://en.wikipedia.org/wiki/LZ77_and_LZ78#LZ77) 编码的压缩格式。
+- `identity`：标识身份函数（e.g. no compression, nor modification）。
+
+也可以同时指定多个值，用逗号分隔，像这样：`Transfer-Encoding: gzip, chunked`。
+
+其中，`chunked` 就比较有意思了。它表示服务器下发到客户端的内容不是一次性完成的，而是分成一小块一小块（trunk）下发，过程中客户端与服务器的连接仍然维持不会断开。
+
+在 Web Socket 没出来前，可利用这一机制实现长连接的效果。
