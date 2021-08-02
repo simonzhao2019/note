@@ -96,3 +96,172 @@
 </html>
 ```
 
+### 二、three.js的响应式设置
+
+```js
+function main() {
+const canvas = document.querySelector('#c');
+const renderer = new THREE.WebGLRenderer({canvas});
+
+const fov = 75;
+const aspect = 2; // the canvas default
+const near = 0.1;
+const far = 5;
+const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+camera.position.z = 2;
+
+const scene = new THREE.Scene();
+
+{
+const color = 0xFFFFFF;
+const intensity = 1;
+const light = new THREE.DirectionalLight(color, intensity);
+light.position.set(-1, 2, 4);
+scene.add(light);
+}
+
+const boxWidth = 1;
+const boxHeight = 1;
+const boxDepth = 1;
+const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
+
+function makeInstance(geometry, color, x) {
+const material = new THREE.MeshPhongMaterial({color});
+
+const cube = new THREE.Mesh(geometry, material);
+scene.add(cube);
+
+cube.position.x = x;
+
+return cube;
+}
+
+const cubes = [
+makeInstance(geometry, 0x44aa88, 0),
+makeInstance(geometry, 0x8844aa, -2),
+makeInstance(geometry, 0xaa8844, 2),
+];
+
+function render(time) {
+time *= 0.001; // convert time to seconds
+
+cubes.forEach((cube, ndx) => {
+const speed = 1 + ndx * .1;
+const rot = time * speed;
+cube.rotation.x = rot;
+cube.rotation.y = rot;
+});
+
+renderer.render(scene, camera);
+
+requestAnimationFrame(render);
+}
+requestAnimationFrame(render);
+
+}
+
+main();
+```
+
+![ce](https://threejsfundamentals.org/threejs/lessons/resources/images/resize-incorrect-aspect.png)
+
+在没有对webgl进行响应式适配的时候，会出现两个，问题，一个是比例不适配的导致图形被压缩。还有一个就是图形的边缘出现模糊。
+
+1、解决拉伸问题。
+
+通过将传入canvas对象的宽高比，设置为相机的宽高比
+
+```js
+  if (resizeRendererToDisplaySize(renderer)) {
+        const canvas = renderer.domElement;
+        camera.aspect = canvas.clientWidth / canvas.clientHeight;
+        camera.updateProjectionMatrix();
+      }
+```
+
+2、解决边缘模糊问题
+
+模糊问题主要是css像素与物理像素之间的不一致引起的，可以使用像素比进行转换
+
+```js
+  function resizeRendererToDisplaySize(renderer) {
+      const canvas = renderer.domElement;
+      const pixelRatio = window.devicePixelRatio;   //获取设备物理像素，从而进行转换
+      const width = canvas.clientWidth * pixelRatio | 0;
+      const height = canvas.clientHeight * pixelRatio | 0;
+      const needResize = canvas.width !== width || canvas.height !== height;
+      if (needResize) {
+        renderer.setSize(width, height, false);
+      }
+      return needResize;
+    }
+```
+
+### 三、纹理
+
+#### 1、纹理图集
+
+纹理图集是将多个图像放在一个单一的纹理中，然后使用几何体顶点上的纹理坐标来选择在几何体的每个三角形上使用纹理的哪些部分。
+
+#### 2、纹理坐标：
+
+纹理坐标是添加到一块几何体的每个顶点上的数据，用于指定该顶点对应的纹理的哪个部分。
+
+#### 3、加载纹理
+
+（1）简单加载纹理
+
+借用纹理loader加载器进行纹理加载
+
+```js
+ const loader = new THREE.TextureLoader()
+  //生成纹理加载器
+ const texture = loader.load('resources/images/flower-1.jpg');
+	//调用加载器的load方法加载纹理
+
+  /*<-------- 注意-------->*/
+//需要注意的是，使用这个方法，我们的纹理将是透明的，直到图片被three.js异步加载完成，这时它将用下载的图片更新纹理,这种情况会出现，先是空白，后面再出现纹理的情况
+
+
+```
+
+（2）同步加载纹理
+
+同步加载纹理就是等纹理都加载完毕之后再进行渲染，可以给load传入第二个参数实现
+
+```js
+const loader = new THREE.TextureLoader();
+loader.load('resources/images/wall.jpg', (texture) => {
+  const material = new THREE.MeshBasicMaterial({
+    map: texture,
+  });
+  const cube = new THREE.Mesh(geometry, material);
+  scene.add(cube);
+  cubes.push(cube);  // 添加到我们要旋转的立方体数组中
+});
+
+//给loader传入第二个参数，等加载成功之后，在将纹理设置为材质对象，然后生成几何体
+```
+
+上面是对于当个纹理的同步加载，对于多个纹理的同步加载，我们可以采用LoadingManager来进行批量管理
+
+```js
+const loadManager=new THREE.LoadingManager()
+const loader = new THREE.TextureLoader(loadManager);
+ 
+const materials = [
+  new THREE.MeshBasicMaterial({map: loader.load('resources/images/flower-1.jpg')}),
+  new THREE.MeshBasicMaterial({map: loader.load('resources/images/flower-2.jpg')}),
+  new THREE.MeshBasicMaterial({map: loader.load('resources/images/flower-3.jpg')}),
+  new THREE.MeshBasicMaterial({map: loader.load('resources/images/flower-4.jpg')}),
+  new THREE.MeshBasicMaterial({map: loader.load('resources/images/flower-5.jpg')}),
+  new THREE.MeshBasicMaterial({map: loader.load('resources/images/flower-6.jpg')}),
+];
+ 
+loadManager.onLoad = () => {
+  const cube = new THREE.Mesh(geometry, materials);
+  scene.add(cube);
+  cubes.push(cube);  // 添加到我们要旋转的立方体数组中
+}; //这里是纹理完全加载完成之后，在绘制立方体以及将立方体添加到scene当中
+```
+
