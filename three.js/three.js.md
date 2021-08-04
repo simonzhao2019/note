@@ -265,3 +265,51 @@ loadManager.onLoad = () => {
 }; //这里是纹理完全加载完成之后，在绘制立方体以及将立方体添加到scene当中
 ```
 
+### 四、光照 
+
+#### 1、环境光（ambientLight）
+
+```js
+const color = 0xFFFFFF;  //颜色
+const intensity = 1; //强度
+const light = new THREE.AmbientLight(color, intensity);
+scene.add(light);
+```
+
+环境光需要两个参数，一个是光的的颜色，还有一个是光照强度.
+
+环境光，没有方向，无法产生阴影，场景内任何一点受到的光照强度都是相同的，除了改变场景内所有物体的颜色以外，不会使物体产生明暗的变化，看起来并不像真正意义上的光照。通常的作用是提亮场景，让暗部不要太暗。
+
+#### 2、半球光（hemisphereLight）
+
+半球光（HemisphereLight）的颜色是从天空到地面两个颜色之间的渐变，与物体材质的颜色作叠加后得到最终的颜色效果。一个点受到的光照颜色是由所在平面的朝向（法向量）决定的 —— 面向正上方就受到天空的光照颜色，面向正下方就受到地面的光照颜色，其他角度则是两个颜色渐变区间的颜色。
+
+```js
+const skyColor = 0xB1E1FF;  // light blue
+const groundColor = 0xB97A20;  // brownish orange
+const intensity = 1;
+const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+scene.add(light);
+
+```
+
+半球光有三个参数天空颜色、地面颜色，还有就是光照强度。
+
+单纯的半球光也很难使物体有立体感 ，但是可以很好地表现天空和地面颜色照射到物体上时的效果。所以最好的使用场景就是与其他光照结合使用，或者作为环境光（AmbientLight）的一种替代方案。
+
+#### 3、方向光
+
+方向光表示的是来自一个方向上的光，并不是从某个点发射出来的，而是从一个无限大的平面内，发射出全部相互平行的光线，人们通常用方向光来表示太阳光。
+
+```js
+ const color = 0xFFFFFF;
+      // const skyColor=0xB1E1FF
+      // const groundColor= 0xB97A20
+      const intensity=1
+      const light=new THREE.DirectionalLight(color,intensity)  //方向光
+      light.position.set(0, 10, 0);
+      light.target.position.set(-5, 0, 0)
+      scene.add(light)
+      scene.add(light.target)
+```
+
