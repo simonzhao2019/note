@@ -1,3 +1,7 @@
+---
+typora-root-url: 图片
+---
+
 ### 一、three.js几组基础概念
 
 ![](https://threejsfundamentals.org/threejs/lessons/resources/images/threejs-structure.svg)
@@ -313,3 +317,61 @@ scene.add(light);
       scene.add(light.target)
 ```
 
+#### 4、点光源
+
+点光源（PointLight）表示的是从一个点朝各个方向发射出光线的一种光照效果。
+
+```js
+const color = 0xFFFFFF;
+const intensity = 1;
+const light = new THREE.PointLight(color, intensity);
+light.position.set(0, 10, 0);
+scene.add(light);
+```
+
+点光源（PointLight）有额外的一个范围（distance）属性。 如果 distance 设为 0，则光线可以照射到无限远处。如果大于 0，则只可以照射到指定的范围，光照强度在这个过程中逐渐衰减，在光源位置时，intensity 是设定的大小，在距离光源 distance 位置的时候，intensity 为 0。
+
+#### 5、聚光灯
+
+聚光灯可以看成是一个点光源被一个圆锥体限制住了光照的范围。实际上有两个圆锥，内圆锥和外圆锥。光照强度在两个锥体之间从设定的强度递减到 0
+
+```js
+const intensity = 1;
+    const light = new THREE.SpotLight(color, intensity);
+    light.position.set(0, 10, 0);
+    light.target.position.set(-5, 0, 0);
+    scene.add(light);
+    scene.add(light.target);
+```
+
+#### 6、矩形区域光
+
+矩形区域光（RectAreaLight）, 顾名思义，表示一个矩形区域的发射出来的光照，例如长条的日光灯或者天花板上磨砂玻璃透进来的自然光。另外，我们需要注意矩形区域光（RectAreaLight）只能影响 MeshStandardMaterial 和 MeshPhysicalMaterial，其它如MeshPhongMaterail是无效的。
+
+```js
+ const color = 0xFFFFFF;
+    const intensity = 5;
+    const width = 12;
+    const height = 4;
+    const light = new THREE.RectAreaLight(color, intensity, width, height);
+    light.position.set(0, 10, 0);
+    light.rotation.x = THREE.MathUtils.degToRad(-90);
+    scene.add(light);
+
+
+//与方向光（DirectionalLight）和聚光灯（SpotLight）不同，矩形光不是使用目标点（target），而是使用自身的旋转角度来确定光照方向。另外，矩形光的辅助对象（RectAreaLightHelper）应该添加为光照的子节点，而不是添加为场景的子节点。
+```
+
+#### 7、PhysicallyCorrectLights
+
+PhysicallyCorrectLights是renderer当中的第一个设置项。这个设置会影响（随着离光源的距离增加）光照如何减弱。这个设置会影响点光源（PointLight）和聚光灯（SpotLight），矩形区域光（RectAreaLight）会自动应用这个特性。
+
+
+
+在设置光照时，基本思路是不要设置 distance 来表现光照的衰减，也不要设置 intensity。而是设置光照的 power 属性，以流明为单位，three.js 会进行物理计算，从而表现出接近真实的光照效果。在这种情况下 three.js 参与计算的长度单位是米，一个 60瓦 的灯泡大概是 800 流明强度。并且光源有一个 decay 属性，为了模拟真实效果，应该被设置为 2。
+
+#### 8、几种光的区别
+
+![](/光源.png)
+
+### 四、相机
