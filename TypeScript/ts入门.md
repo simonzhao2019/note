@@ -624,13 +624,51 @@ Semlinker: string
 {value: 68, message: "Semlinker"}*/  这里我们就利用接口的性质，返回了两种类型的对象
 ```
 
--
+#### （2）泛型类
 
 
 
-#### （2）泛型约束
+在类中使用泛型也很简单，我们只需要在类名后面，使用 `<T, ...>` 的语法定义任意多个类型变量
 
-```js
+```tsx
+interface GenericInterface<U>{
+  value:U 
+  getIdentity:()=>U
+}
+
+class IdentityClass<T> implements GenericInterface<T>{
+  value:T
+  constructor(value:T){
+    this.value=value
+  }
+  getIdentity():T{
+    return this.value
+  }
+}
+const myNumberClass=new IdentityClass<Number>(18)
+console.log(myNumberClass.getIdentity())
+const myStringClass=  new IdentityClass<String>('Tang Wei')   
+/*这里注意一下，如果们已经定义了泛型的类型为String,那么参数就必须为String。
+const myStringClass=  new IdentityClass<String>(18)    这种写法会报错Argument of type '18' is not assignable to parameter of type 'String'.
+
+如果我们把泛型约束省略了，那么编译器就会自动推测所使用的泛型
+比如，如果我们这样写const myStringClass=  new IdentityClass(18)  这里的泛型约束就会被推测为Number,
+
+
+*/
+console.log(myStringClass.getIdentity())
+
+```
+
+
+
+#### （3）泛型约束
+
+###### 3.1 确保属性存在
+
+我们可以利用泛型约束来确保属性的存在，下面的例子就是利用了泛型的特性要求我们传参的时候必须为含有length属性的值
+
+```tsx
 interface Lengthwise {
     length: number;
 }
@@ -640,8 +678,14 @@ function loggingIdentity<T extends Lengthwise>(arg: T): T {
     return arg;
 }
 
-<T extends Lengthwise>  //这句话的意思是我们定义的类型必须符合接口Lengthwise的要求
+<T extends Lengthwise>  
+ //这句话的意思是我们定义的类型必须符合接口Lengthwise的要求   
+ loggingIdentity(68)   /*报错 Argument of type '68' is not assignable to parameter of type Lengthwise'. */ 
 ```
+
+###### 3.2 检查对象上的键是否存在
+
+
 
 ### 2、元组
 
@@ -666,7 +710,7 @@ console.log(list)      // [ 'Sherlock', 1887, 'hello world' ]
 console.log(list[2])    //// Tuple type '[string, number]' of length '2' has no element at index '2'
 
 
-//上面，我们虽然能够push进去，但是用下表查找时确是查找不到的
+//上面，我们虽然能够push进去，但是用下标查找时却是查找不到的
 
 
 ```
