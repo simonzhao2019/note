@@ -580,9 +580,55 @@ foo.bas = 'hello';//  并不会报错,因为我们在这里断言了foo属于Foo
 }
 
 //在上图中，我们在函数名的后面定义了<T>。这里我们就可以把它理解为泛型，因为我们并不知道输出的类型，其主要的的需求是，要求输入的类型和输出的类型一致 
+
+
+其中 T 代表 Type，在定义泛型时通常用作第一个类型变量名称。但实际上 T 可以用任何有效名称代替。除了 T 之外，以下是常见泛型变量代表的意思：
+
+K（Key）：表示对象中的键类型；
+V（Value）：表示对象中的值类型；
+E（Element）：表示元素类型。
+
+
+function identity<T, M>(value: T, message: M): T {
+  console.log(message)
+  return value
+}
+identity<Number,String>(23,'45')
+//在上面的代码中，我们定义了identity函数，并且用泛型指明了两个参数的类型，一个是Number,另一个是String.
 ```
 
-#### 泛型约束
+#### （1）泛型接口
+
+```js
+interface Identities<V,M>{
+  value:V,
+  message:M
+}
+
+//定义了接口，并且在接口中引入了类型变量 V 和 M
+function identity<T, U>(value: T, message: U): Identities<T, U> {
+  console.log(value + ": " + typeof (value));
+  console.log(message + ": " + typeof (message));
+  let identities: Identities<T, U> = {
+    value,
+    message
+  };
+  return identities;
+}
+
+console.log(identity(68, "Semlinker"));   
+/*
+输出结果为：
+68: number
+Semlinker: string
+{value: 68, message: "Semlinker"}*/  这里我们就利用接口的性质，返回了两种类型的对象
+```
+
+-
+
+
+
+#### （2）泛型约束
 
 ```js
 interface Lengthwise {
@@ -595,5 +641,51 @@ function loggingIdentity<T extends Lengthwise>(arg: T): T {
 }
 
 <T extends Lengthwise>  //这句话的意思是我们定义的类型必须符合接口Lengthwise的要求
+```
+
+### 2、元组
+
+元组用来表示已经元素数量和类型得到数组，个元素的类型不必相同的，对应位置的类型需要相同
+
+（1）定义元组
+
+```js
+let x: [string, number];
+x = ['hello', 10]; // OK
+x = [10, 'hello']; // Error
+
+
+(1)当访问一个已知索引的元素，会得到正确的类型：
+console.log(x[0].substr(1)); // OK
+console.log(x[1].substr(1)); // Property 'substr' does not exist on type 'number'
+
+(2)元组越界
+const list: [string, number] = ['Sherlock', 1887]
+list.push('hello world')
+console.log(list)      // [ 'Sherlock', 1887, 'hello world' ]
+console.log(list[2])    //// Tuple type '[string, number]' of length '2' has no element at index '2'
+
+
+//上面，我们虽然能够push进去，但是用下表查找时确是查找不到的
+
+
+```
+
+（2）可选元素类型
+
+元组类型允许在元素类型后缀一个 `?` 来说明元素是可选的：
+
+```js
+let list: [number, string?, boolean?]
+list = [10, 'Sherlock', true]
+list = [10, 'Sherlock']
+list = [10]
+```
+
+可选元素必须在必选元素的后面，也就是如果一个元素后缀了 ?号，其后的所有元素都要后缀 ?号:
+
+```js
+let list1: [number, string?, boolean] 
+// Error: A required element cannot follow an optional element
 ```
 
