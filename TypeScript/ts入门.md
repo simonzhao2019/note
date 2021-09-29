@@ -685,6 +685,64 @@ function loggingIdentity<T extends Lengthwise>(arg: T): T {
 
 ###### 3.2 检查对象上的键是否存在
 
+泛型约束的另一个常见的使用场景就是检查对象上的键是否存在。
+
+
+
+
+
+```tsx
+enum Difficulty{
+  Easy,
+  Intermediate,
+  Hard
+}
+
+function getProperty<T,K extends keyof T>(obj:T,key:K):T[K] {
+  return obj[key]
+}
+//K extends keyof T 就是要求K必须输属于T当中的一个
+let tsInfo = {
+  name: "Typescript",
+  supersetOf: "Javascript",
+  difficulty: Difficulty.Intermediate
+}
+
+let difficulty:Difficulty=getProperty(tsInfo,'difficulty')
+
+
+//对于keyof,typescript的keyof关键字，将一个类型映射为它所有成员名称的联合类型
+```
+
+#### (4)泛型参数默认类型
+
+泛型参数默认类型，类似于函数的默认值，比如
+
+```tsx
+interface A<T = string> {
+  name: T;
+} 
+//这里我们默认了，在没有对泛型进行赋值的情况下，类型默认为string
+const strA: A = { name: 18 }; //这里会报错，没有指定类型的情况下默认为String,但是赋值确是Number
+const strB:A <Number>={name:18} //不会报错
+```
+
+泛型参数的默认类型遵循以下原则：
+
+4.1有默认类型的类型参数被认为是可选的。
+
+4.2必选的类型参数不能在可选的类型参数后。
+
+4.3如果类型参数有约束，类型参数的默认类型必须满足这个约束。
+
+4.4当指定类型实参时，你只需要指定必选类型参数的类型实参。 未指定的类型参数会被解析为它们的默认类型。
+
+4.5如果指定了默认类型，且类型推断无法选择一个候选类型，那么将使用默认类型作为推断结果。
+
+4.6一个被现有类或接口合并的类或者接口的声明可以为现有类型参数引入默认类型。
+
+4.7一个被现有类或接口合并的类或者接口的声明可以引入新的类型参数，只要它指定了默认类型。
+
 
 
 ### 2、元组
@@ -731,5 +789,32 @@ list = [10]
 ```js
 let list1: [number, string?, boolean] 
 // Error: A required element cannot follow an optional element
+```
+
+### 3、类型别名type
+
+类型别名通常用来给类型起个新的名字，使用场景躲在联合类型当中
+
+
+
+```tsx
+type StringNum=String|Number
+
+
+//上面我们定义了联合类型的别名
+```
+
+### 4、枚举enum
+
+
+
+```tsx
+enum test{mon,tus}
+console.log(test['tus']) //输出为1
+
+console.log(test[1]) //输出为tus
+
+
+//枚举（Enum）类型用于取值被限定在一定范围内的场景，比如一周只能有七天，颜色限定为红绿蓝等。
 ```
 
