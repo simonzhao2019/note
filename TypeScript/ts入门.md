@@ -793,7 +793,7 @@ let list1: [number, string?, boolean]
 
 ### 3、类型别名type
 
-类型别名通常用来给类型起个新的名字，使用场景躲在联合类型当中
+类型别名通常用来给类型起个新的名字，使用场景多在联合类型当中
 
 
 
@@ -804,9 +804,38 @@ type StringNum=String|Number
 //上面我们定义了联合类型的别名
 ```
 
+### 4、typeof关键字
+
+ts当中，我们通常通过typeof来获取一个变量或者是对象的类型具体的用法如下
+
+```tsx
+interface Person {
+  name: string;
+  age: number;
+}
+
+const sem: Person = { name: "semlinker", age: 30 };
+type Sem = typeof sem; // type Sem = Person   
+  //这里，我们等于是吧Person的类型赋值给了sem，在比如在vuex当中我们采用的写法
+
+
+export default createStore({
+state(){
+  return defaultState
+},
+mutations:{
+  increment(state:typeof defaultState){
+    state.count++
+  }
+}
+})
+//上面我就是吧defaultState的类型给了state
+
+```
+
+
+
 ### 4、枚举enum
-
-
 
 ```tsx
 enum test{mon,tus}
