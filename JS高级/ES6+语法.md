@@ -58,5 +58,52 @@ const arrayBuffer=new ArrayBuffer(16)
  console.log('byteLength',fullDataView.byteLength) //16
 /* DataView构造函数还可以接受一个字节偏移量和字节长度 */ 
 
+ const firstHalfDataView = new DataView(arrayBuffer, 0, 8);
+ console.log(firstHalfDataView.byteOffset); // 0
+ console.log(firstHalfDataView.byteLength); // 8
+console.log(firstHalfDataView.buffer === arrayBuffer); // true
+
+
 ```
+
+**字节和比特**
+
+  位（bit）：也被称为比特，二进制数中的一个数位，可以是0或者1，是计算机中数据的最小单位。二进制的一个“0”或一个“1”叫一位。
+
+字节（Byte，B）：计算机中数据的基本单位，每8位组成一个字节。各种信息在计算机中存储、处理至少需要一个字节。
+
+**ElementType**
+
+DataView 对存储在缓冲内的数据类型没有预设。它暴露的 API 强制开发者在读、写时指定一个ElementType，然后 DataView 就会忠实地为读、写而完成相应的转换。
+
+![微信截图_20211015171350](ES6+语法.assets/微信截图_20211015171350-16342894474302.png)
+
+
+
+DataView 为上表中的每种类型都暴露了 get 和 set 方法，这些方法使用 byteOffset（字节偏移量）定位要读取或写入值的位置。类型是可以互换使用的，如下例所示：
+
+```js
+
+const arrayBuffer=new ArrayBuffer(2)
+
+const view=new DataView(arrayBuffer)
+console.log(view.getInt8(0))  //0
+console.log(view.getInt8(1))   //0
+console.log(view.getInt16(0))   //0
+console.log(view.getInt16(1)) //Uncaught RangeError: Offset is outside the bounds of the DataView
+
+
+
+//在上面，2个字节，对应的是8比特是两个，对应的16比特只有1个，因此我们打印view.getInt16(1)的时候回报错，因为两个字节我们用1个16位就能表示，不存在第二个16位
+```
+
+#####   补充：进制转换
+
+
+
+比如0X80为16进制，则转换二进制遵循以下方法
+
+因为：2<sup>4</sup>=16 所以每个位数对应的是4位
+
+对应的四位数为：8、4、2、1 ，之所以是8、4、2、1是因为8+4+2+1=15。8、4、2、1也就是2<sup>3</sup>=8、2<sup>2</sup>=4、2<sup>1</sup>=2、2<sup>0</sup>=1
 
