@@ -374,4 +374,36 @@ PhysicallyCorrectLights是renderer当中的第一个设置项。这个设置会�
 
 ![](/光源.png)
 
-### 四、相机
+### 五、相机
+
+### 六、自定义几何体
+
+#### 1、bufferGeometry与BufferAttribute和attributes
+
+BufferGeometry 是three.js 表示所有几何的方式。 BufferGeometry 本质上是一个名为 BufferAttributes 的集合。每个 BufferAttribute 表示一种数据类型的数组：位置、法线、颜色、uv 等...一起，命名的 BufferAttributes 表示每个顶点的所有数据的并行数组。我们用 BufferAttribute来存储与BufferGeometry相关联的 attribute（例如顶点位置向量，面片索引，法向量，颜色值，UV坐标以及任何自定义 attribute ）。 利用 BufferAttribute，可以更高效的向GPU传递数据。具体我们可以参考官网的例子。
+
+```js
+const geometry = new THREE.BufferGeometry();
+// 创建一个简单的矩形. 在这里我们左上和右下顶点被复制了两次。
+// 因为在两个三角面片里，这两个顶点都需要被用到。
+const vertices = new Float32Array( [
+	-1.0, -1.0,  1.0,
+	 1.0, -1.0,  1.0,
+	 1.0,  1.0,  1.0,
+
+	 1.0,  1.0,  1.0,
+	-1.0,  1.0,  1.0,
+	-1.0, -1.0,  1.0
+] );
+
+// itemSize = 3 因为每个顶点都是一个三元组。
+geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+const material = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+const mesh = new THREE.Mesh( geometry, material );
+
+
+```
+
+这里我们还需要了解一下attributes。attributes存储着我们通过setAttribute设置的所有buffer数据。就像官网所说attributes通过 hashmap 存储该几何体相关的属性，hashmap 的 id 是当前 attribute 的名称，值是相应的 buffer。 你可以通过 .setAttribute 和 .getAttribute 添加和访问与当前几何体有关的 attribute。
+
+*HashMap*是一个用于存储Key-Value键值对的集合。简单来说就是个Object
