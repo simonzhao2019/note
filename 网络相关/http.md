@@ -228,3 +228,13 @@ Content-Range: <unit> */<size>
 其中，`chunked` 就比较有意思了。它表示服务器下发到客户端的内容不是一次性完成的，而是分成一小块一小块（trunk）下发，过程中客户端与服务器的连接仍然维持不会断开。
 
 在 Web Socket 没出来前，可利用这一机制实现长连接的效果。
+
+
+
+
+
+
+
+
+
+git log --since=2022-03-13 --until=2022-03-16 --author='tinghui.zhao' --pretty=tformat: --numstat | awk '{ add += $1; subs += $2; loc += $1 - $2 } END { printf "added lines: %s, removed lines: %s, total lines: %s\n", add, subs, loc }' -;
