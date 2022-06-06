@@ -1,4 +1,4 @@
-### 1、Proxy
+### 一、Proxy
 
 **Proxy** 对象用于创建一个对象的代理，从而实现基本操作的拦截和自定义（如属性查找、赋值、枚举、函数调用等）。
 
@@ -106,4 +106,147 @@ console.log(view.getInt16(1)) //Uncaught RangeError: Offset is outside the bound
 因为：2<sup>4</sup>=16 所以每个位数对应的是4位
 
 对应的四位数为：8、4、2、1 ，之所以是8、4、2、1是因为8+4+2+1=15。8、4、2、1也就是2<sup>3</sup>=8、2<sup>2</sup>=4、2<sup>1</sup>=2、2<sup>0</sup>=1
+
+### 三、Class（类）
+
+#### 1、类的概念
+
+上面代码定义了一个“类”，可以看到里面有一个`constructor()`方法，这就是构造方法，而`this`关键字则代表实例对象。ES6当中的类可以把它看作是ES5当中的语法糖。是对new这种构造函数的简化。
+
+```javascript
+class Point {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  toString() {
+    return '(' + this.x + ', ' + this.y + ')';
+  }
+}
+```
+
+#### 2、constructor 方法
+
+```javascript
+import axios from 'axios'
+import type { AxiosInstance, AxiosRequestConfig } from 'axios'
+
+class Request {
+  // axios 实例
+  instance: AxiosInstance
+
+  constructor(config: AxiosRequestConfig) {
+    this.instance = axios.create(config)
+  }
+  request(config: AxiosRequestConfig) {
+    return this.instance.request(config)
+  }
+}
+
+export default Request
+
+//在上文当中，我们创建了一个request的类，其中有有个constructor方法，对于所有的class都必然有个constructor方法，在对class进行实例化的时候，第一步就是通过constructor方法生成实例。比如，new Request（）的时候，第一步就是调用constructor方法生成实例。
+
+//注意：在我们定义类的时候，所有类如果我们没有给他添加construtor方法的话，都会被默认添加一个constructor方法
+
+class Point {
+}
+
+// 等同于
+class Point {
+  constructor() {}
+}
+
+上图中pointer被默认添加了constructor方法。
+（1）constructor()方法默认返回实例对象（即this），完全可以指定返回另外一个对象。
+
+（2）类必须使用new调用，否则会报错
+
+
+class Foo {
+  constructor() {
+    return Object.create(null);
+  }
+}
+
+Foo()
+```
+
+#### 3、类的实例
+
+
+
+（1）用new操作符是调用函数的的时候返回的是类的实例。
+
+（2）类的实例除非显式定义在其本身（即定义在`this`对象上），否则都是定义在原型上（即定义在`class`上）。
+
+```js
+//定义类
+class Point {
+
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  toString() {
+    return '(' + this.x + ', ' + this.y + ')';
+  }
+
+}
+
+//在我们上面定义的Point类中，除了x、y是在实例当中的，toString会被定义在原型上面
+var point = new Point(2, 3);
+
+point.toString() // (2, 3)
+
+point.hasOwnProperty('x') // true
+point.hasOwnProperty('y') // true
+point.hasOwnProperty('toString') // false
+```
+
+#### 4、getter和setter
+
+```js
+class MyClass {
+  constructor() {
+    // ...
+  }
+  get prop() {
+    return 'getter';
+  }
+  set prop(value) {
+    console.log('setter: '+value);
+  }
+}
+
+let inst = new MyClass();
+
+inst.prop = 123;
+// setter: 123
+
+inst.prop
+```
+
+##### 5、static静态方法与静态属性
+
+类相当于实例的原型，所有在类中定义的方法，都会被实例继承。如果在一个方法前，加上`static`关键字，就表示该方法不会被实例继承，而是直接通过类来调用，这就称为“静态方法”。
+
+```javascript
+class Foo {
+  //定义了静态方法
+  static classMethod() {
+    console.log(this.test)   //输出结果为1，这里面的this指的是类本身
+     return 'hello';
+  }
+}
+
+Foo.classMethod() // 'hello'
+//定义静态属性
+Foo.test=1 //静态方法只允许这样定义，static关键字定义在类内部只能允许静态方法那样定义
+var foo = new Foo();
+foo.classMethod() // TypeError: foo.classMethod is not a function   
+//方法是定义在Class上面的静态方法，所以实例化不能调用，只能这个类本身调用，这里还要注意，如果静态方法上面使用了this。则这个this指向的类，而不是实例对象
+```
 

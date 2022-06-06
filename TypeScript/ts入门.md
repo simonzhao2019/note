@@ -251,6 +251,31 @@ let tom: Person = {
 tom.id = 9527;  //这里不允许进行赋值，因为声明了id为只读属性
 ```
 
+5、接口继承
+
+```js
+import type { AxiosRequestConfig, AxiosResponse } from 'axios'
+  //定义了实例的请求拦截接口
+export interface RequestInterceptors {
+  // 请求拦截
+  requestInterceptors?: (config: AxiosRequestConfig) => AxiosRequestConfig   //可选属性？
+  requestInterceptorsCatch?: (err: any) => any   
+  // 响应拦截
+  responseInterceptors?: (config: AxiosResponse) => AxiosResponse
+  responseInterceptorsCatch?: (err: any) => any
+}
+// 自定义传入的参数
+
+/*  */
+export interface RequestConfig extends AxiosRequestConfig {
+  /* extends表示我们暴露出去的接口除了有AxiosRequestConfig继承的方法止呕，还有自己的方法 RequestInterceptors  */
+  interceptors?: RequestInterceptors   
+}
+
+```
+
+
+
 #### 数组
 
 1、数组的定义
