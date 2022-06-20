@@ -186,7 +186,7 @@ let tom: Person = {
 
 3、任意属性
 
-有时候我们希望一个接口允许有任意的属性，可以使用如下方式：
+有时候我们希望一个接口允许有任意的属性，可以使用如下方式：这里的任意属性代表的是可以有，可以没有，可以多，也可以少
 
 ```
 interface Person {
@@ -231,6 +231,41 @@ let tom: Person = {
     gender: 'male'
 };
 ```
+
+注意一下几种情况
+
+（1）任意属性和一般属性同时存在
+
+```typescript
+interface A {
+    name:string
+    [prop: string]: number|string;
+}
+
+const test: A = {
+   age:15,
+}; //Property 'name' is missing in type '{ age: number; }' but required in type 'A'.
+
+//这种情况会报错，因为接口当中有个必须属性name不存在
+```
+
+（2）只定义任意属性
+
+```typescript
+interface A {
+    [prop: string]: number|string;
+}
+
+const test: A = {
+   age:15,
+};
+
+const test2: A = {
+};
+//上述情况并不会报错，age可以有，可以没有这就是任意属性，理论上，我们可以添加任何属性，也可以不添加任何属性
+```
+
+
 
 4、只读属性
 

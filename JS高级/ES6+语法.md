@@ -107,6 +107,14 @@ console.log(view.getInt16(1)) //Uncaught RangeError: Offset is outside the bound
 
 对应的四位数为：8、4、2、1 ，之所以是8、4、2、1是因为8+4+2+1=15。8、4、2、1也就是2<sup>3</sup>=8、2<sup>2</sup>=4、2<sup>1</sup>=2、2<sup>0</sup>=1
 
+
+
+二进制与十进制之间的转换
+
+找出最近的二的次幂，依次叠加
+
+比如34转换成二机制，离34最近的为2<sup>5</sup>=32   
+
 ### 三、Class（类）
 
 #### 1、类的概念
