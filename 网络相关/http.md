@@ -51,15 +51,27 @@ HTTP/1.1协议中预留给能够将连接改为隧道方式的代理服务器。
 
 ### 3、CROS
 
+
+
 跨源资源共享标准新增了一组 HTTP 首部字段，允许服务器声明哪些源站通过浏览器有权限访问哪些资源。另外，规范要求，对那些可能对服务器数据产生副作用的 HTTP 请求方法（特别是 GET 以外的 HTTP 请求，或者搭配某些 MIME 类型的 POST 请求），浏览器必须首先使用 OPTIONS 方法发起一个预检请求（preflight request），从而获知服务端是否允许该跨源请求。服务器确认允许之后，才发起实际的 HTTP 请求。在预检请求的返回中，服务器端也可以通知客户端，是否需要携带身份凭证（包括 Cookies 和 HTTP 认证相关数据）。
 
-1、预检请求
+1、为什么会有CROS
+
+To allow sharing responses cross-origin and allow for more versatile [fetches](https://fetch.spec.whatwg.org/#concept-fetch) than possible with HTML’s `form` element, the CORS protocol exists. It is layered on top of HTTP and allows responses to declare they can be shared with other [origins](https://html.spec.whatwg.org/multipage/origin.html#concept-origin).
+
+为了允许跨域分享除了Html表单元素之外更多的元素。才有了 CORS 一系列协定的存在，它位于 HTTP 之上，并允许响应声明它们可以与其他来源共享。
+
+CORS 协议由一组标头组成，这些标头指示响应是否可以跨域共享。
+
+对于比 HTML 的表单元素更复杂的请求，执行 CORS 预检请求，以确保请求的当前 URL 支持 CORS 协议。
+
+2、预检请求
 
 “需预检的请求”要求必须首先使用 [`OPTIONS`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods/OPTIONS)到服务器，以获知服务器是否允许该实际请求。"预检请求“的使用，可以避免跨域请求对服务器的用户数据产生未预期的影响。
 
 大多数浏览器不支持针对于预检请求的重定向。如果一个预检请求发生了重定向，浏览器将报告错误：
 
-2、关于跨域当中http请求的几个关键头部
+3、关于跨域当中http请求的几个关键头部
 
 **A)请求部分**
 
@@ -237,4 +249,3 @@ Content-Range: <unit> */<size>
 
 
 
-git log --since=2022-03-13 --until=2022-03-16 --author='tinghui.zhao' --pretty=tformat: --numstat | awk '{ add += $1; subs += $2; loc += $1 - $2 } END { printf "added lines: %s, removed lines: %s, total lines: %s\n", add, subs, loc }' -;
