@@ -70,3 +70,92 @@ HtmlWebpackPlugin 简化了 HTML 文件的创建，以便为你的 webpack 包�
   }),
 ```
 
+## 四、loader
+
+Rule.use
+
+`Rule.use` 可以是一个应用于模块的 [UseEntries](https://www.webpackjs.com/configuration/module/#useentry) 数组。每个入口(entry)指定使用一个 loader。
+
+传递字符串（如：`use: [ 'style-loader' ]`）是 loader 属性的简写方式（如：`use: [ { loader: 'style-loader'} ]`）。
+
+下面的几种，说明了loader配置的几种形式
+
+```js
+
+
+let conf = {
+    entry : getEntry("province/jiangsu/src/js/view/**/","*.js"),
+    context: path.join(__dirname),
+    resolve: {
+        extensions: ['.js', '.json', '.jsx'],
+        alias: {
+            'react': 'anujs/dist/ReactIE.js',
+            'router': 'anujs/dist/Router.js',
+            'react-dom':  'anujs/dist/ReactIE.js',
+            'prop-types':  'anujs/lib/ReactPropTypes.js',
+            'create-react-class': 'anujs/lib/createClass.js',
+            'config':'./config',
+            '@base': path.resolve(__dirname, '../../../base'),
+            '@baseComponents': path.resolve(__dirname, '../../../base/js/components'),
+            '@province': path.resolve(__dirname, '../src')
+        }
+    },
+    module:{
+        rules:[
+          //这种形式为第一种的形式，采用数组的形式
+            {
+                test: /\.(js|jsx)$/,
+                use:[
+                    'cache-loader',
+                    {
+                    loader: 'babel-loader',
+                    options: {
+                        presets: ['es2015-loose', 'react'],
+                        plugins: [
+                            'transform-class-properties',
+                            'dynamic-import-webpack',
+                            [
+                                'transform-es2015-classes',
+                                {
+                                    loose: true
+                                }
+                            ]
+                        ],
+                          
+                    }
+                }]
+            },
+            {
+                test:/\.(css|less)$/,
+                
+                use:[{
+                    loader:MiniCssExtractPlugin.loader,
+                    options: {
+                        // publicPath: '../'
+                        }
+                    },
+                    "css-loader",
+                    "less-loader"
+                ]
+            },
+          //这种形式为query参数形式 ，后面为选项配置
+            {
+                test:/\.(jpe?g|png|gif)$/,
+                use:"url-loader?limit=8192&publicPath=../../&name=images/[name].[ext]"
+            },
+            {
+                test: /\.(ttf|eot|woff|woff2|svg)$/,
+                use: [{
+                    loader: "url-loader",
+                    options: {
+                        name: "fonts/[name].[ext]",
+                        limit: 5000,
+                        publicPath:"../"
+                    }
+                }]
+            }
+        ]
+    },
+
+```
+
